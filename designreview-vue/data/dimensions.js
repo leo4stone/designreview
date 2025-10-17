@@ -7,7 +7,6 @@ window.DimensionsData = {
             id: 'understandability',
             name: '可理解性',
             nameEn: 'Understandability',
-            color: '#6366f1', // 蓝紫色
             description: '用户能否快速理解该功能是什么、如何使用',
             definition: '用户首次接触时能否快速理解该功能是什么、如何使用，是否具备自解释性和良好的首次引导。',
             points: [
@@ -29,7 +28,6 @@ window.DimensionsData = {
             id: 'usability',
             name: '可操作性',
             nameEn: 'Usability',
-            color: '#10b981', // 绿色
             description: '用户能否顺利完成预期任务',
             definition: '用户是否能够顺利、高效地完成预期任务，操作路径是否简洁，交互负担是否适中。',
             points: [
@@ -51,7 +49,6 @@ window.DimensionsData = {
             id: 'consistency',
             name: '一致性',
             nameEn: 'Consistency',
-            color: '#f59e0b', // 橙色
             description: '系统内是否保持逻辑、视觉、语义一致',
             definition: '与系统中其他功能在操作模式、视觉语言、语义表达上是否保持一致，是否满足用户对行为结果的预期。',
             points: [
@@ -73,7 +70,6 @@ window.DimensionsData = {
             id: 'feedback',
             name: '反馈性',
             nameEn: 'Feedback Quality',
-            color: '#ec4899', // 粉红色
             description: '系统能否及时、准确地回应用户行为',
             definition: '系统是否在用户操作后提供及时、明确的反馈，反馈是否能清晰传达系统状态和操作结果。',
             points: [
@@ -95,7 +91,6 @@ window.DimensionsData = {
             id: 'context',
             name: '场景适配性',
             nameEn: 'Context Fit',
-            color: '#8b5cf6', // 紫色
             description: '功能在实际使用情境下是否合理、干扰度是否可控',
             definition: '功能在真实使用场景（如教学、会议、户外等）中是否合理、可用，是否对环境干扰进行了充分考虑。',
             points: [
@@ -121,7 +116,6 @@ window.DimensionsData = {
             id: 'discoverability',
             name: '可探索性',
             nameEn: 'Discoverability',
-            color: '#14b8a6', // 青色
             description: '用户能否在使用中自然发现隐藏功能',
             definition: '用户是否能够在使用过程中自然发现系统中的隐藏功能和高级特性，是否有合理的发现路径。',
             points: [
@@ -143,7 +137,6 @@ window.DimensionsData = {
             id: 'recoverability',
             name: '可恢复性',
             nameEn: 'Recoverability',
-            color: '#ef4444', // 红色
             description: '操作失误后是否易于撤销或恢复',
             definition: '当用户进行错误操作时，系统是否提供容错机制、撤销功能或恢复路径，是否给予清晰的错误说明。',
             points: [

@@ -8,7 +8,8 @@ const app = createApp({
     components: {
         'form-submit': FormSubmitComponent,
         'file-import': FileImportComponent,
-        'result-display': ResultDisplayComponent
+        'result-display': ResultDisplayComponent,
+        'footer-info': FooterInfoComponent
     },
     
     data() {
@@ -19,7 +20,9 @@ const app = createApp({
             nextResultId: 1,
             // 模态框状态
             showScoreModal: false,
-            showImportModal: false
+            showImportModal: false,
+            // Toast 通知
+            toasts: []
         };
     },
     
@@ -35,7 +38,9 @@ const app = createApp({
             closeScoreModal: this.closeScoreModal,
             closeImportModal: this.closeImportModal,
             getScoreModalState: () => this.showScoreModal,
-            getImportModalState: () => this.showImportModal
+            getImportModalState: () => this.showImportModal,
+            // 提供 Toast 方法
+            showToast: this.showToast
         };
     },
     
@@ -57,7 +62,7 @@ const app = createApp({
             // 添加到结果列表
             this.results.push(result);
             
-            console.log('✓ 已添加结果:', result.name, '总分:', result.totalScore);
+            console.log('✓ 已添加结果:', result.name, '平均分:', result.averageScore);
             console.log('  当前结果数量:', this.results.length);
         },
         
@@ -89,6 +94,65 @@ const app = createApp({
                 result.visible = !result.visible;
                 console.log('✓ 切换结果可见性:', result.name, '可见:', result.visible);
             }
+        },
+        
+        // 获取结果颜色
+        getResultColor(index) {
+            const colors = DimensionsData.colors;
+            return colors[index % colors.length].solid;
+        },
+        
+        // 导出结果
+        exportResult(resultId) {
+            const result = this.results.find(r => r.id === resultId);
+            if (!result) {
+                this.showToast('未找到该结果', 'error');
+                return;
+            }
+            
+            // 构建CSV内容 - 纵向格式
+            const rows = [];
+            
+            // 表头
+            rows.push(['维度', '分数', '说明'].map(h => `"${h}"`).join(','));
+            
+            // 获取所有维度
+            const allDimensions = [
+                ...DimensionsData.coreDimensions,
+                ...DimensionsData.optionalDimensions
+            ];
+            
+            // 添加所有维度数据
+            allDimensions.forEach(dim => {
+                const score = result.dimensions[dim.id] || '';
+                const comment = (result.comments && result.comments[dim.id]) ? result.comments[dim.id] : '';
+                rows.push([dim.name, score, comment].map(v => `"${v}"`).join(','));
+            });
+            
+            // 添加平均分
+            rows.push(['平均分', result.averageScore, ''].map(v => `"${v}"`).join(','));
+            
+            const csvContent = rows.join('\n');
+            
+            // 下载文件
+            const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            const filename = result.isCurrent 
+                ? `设计评估-${new Date().toISOString().slice(0, 10)}.csv`
+                : result.filename || `${result.name}.csv`;
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            console.log('✓ 导出结果:', result.name, filename);
+            this.showToast(`已导出: ${filename}`, 'success');
         },
         
         // 清空所有结果
@@ -173,6 +237,27 @@ const app = createApp({
             }
             
             console.log('✓ URL hash变化:', hash);
+        },
+        
+        // 显示 Toast 通知
+        showToast(message, type = 'success', duration = 3000) {
+            const id = Date.now();
+            const toast = {
+                id,
+                message,
+                type, // success, error, info
+                visible: true
+            };
+            
+            this.toasts.push(toast);
+            
+            // 自动移除
+            setTimeout(() => {
+                const index = this.toasts.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    this.toasts.splice(index, 1);
+                }
+            }, duration);
         }
     },
     

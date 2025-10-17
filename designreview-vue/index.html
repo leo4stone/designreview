@@ -38,6 +38,43 @@
                         </span>
                     </button>
                 </div>
+                
+                <!-- 结果管理 -->
+                <div v-if="results.length > 0" class="result-controls">
+                    <h3>结果管理</h3>
+                    <div class="result-list">
+                        <div v-for="(result, index) in results" :key="result.id" class="result-item">
+                            <label class="result-checkbox">
+                                <input 
+                                    type="checkbox" 
+                                    :checked="result.visible"
+                                    @change="toggleResultVisibility(result.id)">
+                                <span class="result-label">
+                                    <span class="result-indicator" :style="{ backgroundColor: getResultColor(index) }"></span>
+                                    <strong>{{ result.name }}</strong>
+                                    <span class="result-meta">
+                                        (平均分: {{ result.averageScore }}, 
+                                        {{ result.isCurrent ? '当前评分' : '导入文件' }})
+                                    </span>
+                                </span>
+                            </label>
+                            <div class="result-actions">
+                                <button 
+                                    @click="exportResult(result.id)" 
+                                    class="btn-icon" 
+                                    title="导出此结果">
+                                    💾
+                                </button>
+                                <button 
+                                    @click="removeResult(result.id)" 
+                                    class="btn-icon btn-danger" 
+                                    title="删除此结果">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
             
             <!-- 结果显示区域 -->
@@ -50,9 +87,23 @@
             <file-import></file-import>
         </main>
 
-        <footer class="footer">
-            <p>💡 提示：评分表可用于交互设计评审、功能上线前体验自测、用户研究等场景</p>
-        </footer>
+        <!-- Footer 信息 -->
+        <footer-info></footer-info>
+        
+        <!-- Toast 通知容器 -->
+        <div class="toast-container">
+            <transition-group name="toast">
+                <div 
+                    v-for="toast in toasts" 
+                    :key="toast.id"
+                    :class="['toast', `toast-${toast.type}`]">
+                    <span class="toast-icon">
+                        {{ toast.type === 'success' ? '✓' : toast.type === 'error' ? '✗' : 'ℹ' }}
+                    </span>
+                    <span class="toast-message">{{ toast.message }}</span>
+                </div>
+            </transition-group>
+        </div>
     </div>
 
     <!-- Vue.js 3 CDN -->
@@ -71,6 +122,7 @@
     <script src="components/FormSubmit.js"></script>
     <script src="components/FileImport.js"></script>
     <script src="components/ResultDisplay.js"></script>
+    <script src="components/FooterInfo.js"></script>
     
     <!-- 主应用 -->
     <script src="app.js"></script>

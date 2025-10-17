@@ -57,7 +57,7 @@ window.FileImportComponent = {
         </div>
     `,
     
-    inject: ['addResult', 'closeImportModal', 'getImportModalState'],
+    inject: ['addResult', 'closeImportModal', 'getImportModalState', 'showToast'],
     
     data() {
         return {
@@ -104,7 +104,7 @@ window.FileImportComponent = {
                     await this.parseCSVFile(file);
                 }
                 
-                alert(`成功导入 ${this.selectedFiles.length} 个文件！`);
+                this.showToast(`成功导入 ${this.selectedFiles.length} 个文件！`, 'success');
                 this.cancelImport();
                 
                 // 关闭模态框
@@ -119,7 +119,7 @@ window.FileImportComponent = {
                 });
                 
             } catch (error) {
-                alert('导入失败：' + error.message);
+                this.showToast('导入失败：' + error.message, 'error');
                 console.error('导入错误:', error);
             } finally {
                 this.importing = false;
@@ -169,8 +169,7 @@ window.FileImportComponent = {
             
             const dimensions = {};
             const comments = {};
-            let totalScore = 0;
-            let scoreLevel = '';
+            let averageScore = 0;
             
             const allDimensions = [
                 ...DimensionsData.coreDimensions,
@@ -187,17 +186,10 @@ window.FileImportComponent = {
                 
                 console.log(`  维度名: "${dimensionName}", 分数: "${score}", 说明: "${comment}"`);
                 
-                // 检查是否是总分
-                if (dimensionName === '总分') {
-                    totalScore = parseInt(score);
-                    console.log('  ✓ 总分:', totalScore);
-                    return;
-                }
-                
-                // 检查是否是评级
-                if (dimensionName === '评级') {
-                    scoreLevel = score;
-                    console.log('  ✓ 评级:', scoreLevel);
+                // 检查是否是平均分
+                if (dimensionName === '平均分') {
+                    averageScore = parseFloat(score);
+                    console.log('  ✓ 平均分:', averageScore);
                     return;
                 }
                 
@@ -227,21 +219,19 @@ window.FileImportComponent = {
                 throw new Error('CSV文件中没有找到有效的维度评分数据');
             }
             
-            // 如果没有总分，则计算
-            if (!totalScore || isNaN(totalScore)) {
+            // 如果没有平均分，则计算
+            if (!averageScore || isNaN(averageScore)) {
                 const coreScores = DimensionsData.coreDimensions
                     .map(dim => dimensions[dim.id])
                     .filter(s => s !== undefined);
                 
                 if (coreScores.length > 0) {
                     const average = coreScores.reduce((a, b) => a + b, 0) / coreScores.length;
-                    totalScore = Math.round(average * 20);
+                    averageScore = parseFloat(average.toFixed(2));
                 } else {
-                    totalScore = 0;
+                    averageScore = 0;
                 }
             }
-            
-            const scoreLevelData = DimensionsData.getScoreLevel(totalScore);
             
             return {
                 isCurrent: false,
@@ -249,9 +239,7 @@ window.FileImportComponent = {
                 filename: filename,
                 dimensions: dimensions,
                 comments: comments,
-                totalScore: totalScore,
-                scoreLevel: scoreLevel || scoreLevelData.label,
-                scoreLevelData: scoreLevelData,
+                averageScore: averageScore,
                 visible: true,
                 timestamp: new Date()
             };

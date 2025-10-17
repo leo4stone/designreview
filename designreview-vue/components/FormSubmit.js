@@ -241,11 +241,7 @@ window.FormSubmitComponent = {
             }
             
             // 计算平均分
-            const coreAverage = coreScores.reduce((a, b) => a + b, 0) / coreScores.length;
-            const totalScore = Math.round(coreAverage * 20);
-            
-            // 获取评分等级
-            const scoreLevel = DimensionsData.getScoreLevel(totalScore);
+            const averageScore = (coreScores.reduce((a, b) => a + b, 0) / coreScores.length).toFixed(2);
             
             // 创建维度得分对象
             const dimensions = {};
@@ -265,9 +261,7 @@ window.FormSubmitComponent = {
                 filename: null,
                 dimensions: dimensions,
                 comments: { ...this.formData.comments },
-                totalScore: totalScore,
-                scoreLevel: scoreLevel.label,
-                scoreLevelData: scoreLevel,
+                averageScore: parseFloat(averageScore),
                 visible: true,
                 timestamp: new Date()
             };
