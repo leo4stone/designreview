@@ -102,14 +102,8 @@ const app = createApp({
             return colors[index % colors.length].solid;
         },
         
-        // 导出结果
-        exportResult(resultId) {
-            const result = this.results.find(r => r.id === resultId);
-            if (!result) {
-                this.showToast('未找到该结果', 'error');
-                return;
-            }
-            
+        // 生成CSV内容（复用于导出和分享）
+        generateCSVContent(result) {
             // 构建CSV内容 - 纵向格式
             const rows = [];
             
@@ -132,7 +126,18 @@ const app = createApp({
             // 添加平均分
             rows.push(['平均分', result.averageScore, ''].map(v => `"${v}"`).join(','));
             
-            const csvContent = rows.join('\n');
+            return rows.join('\n');
+        },
+        
+        // 导出结果
+        exportResult(resultId) {
+            const result = this.results.find(r => r.id === resultId);
+            if (!result) {
+                this.showToast('未找到该结果', 'error');
+                return;
+            }
+            
+            const csvContent = this.generateCSVContent(result);
             
             // 下载文件
             const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -140,7 +145,7 @@ const app = createApp({
             const url = URL.createObjectURL(blob);
             
             const filename = result.isCurrent 
-                ? `设计评估-${new Date().toISOString().slice(0, 10)}.csv`
+                ? `功能评估-${new Date().toISOString().slice(0, 10)}.csv`
                 : result.filename || `${result.name}.csv`;
             
             link.setAttribute('href', url);
@@ -153,6 +158,209 @@ const app = createApp({
             
             console.log('✓ 导出结果:', result.name, filename);
             this.showToast(`已导出: ${filename}`, 'success');
+        },
+        
+        // 分享结果（生成带有base64参数的链接）
+        shareResult(resultId) {
+            const result = this.results.find(r => r.id === resultId);
+            if (!result) {
+                this.showToast('未找到该结果', 'error');
+                return;
+            }
+            
+            try {
+                // 生成CSV内容
+                const csvContent = this.generateCSVContent(result);
+                
+                // 压缩并转换为base64
+                // 1. 将字符串转为 Uint8Array
+                const encoder = new TextEncoder();
+                const csvBytes = encoder.encode(csvContent);
+                
+                // 2. 使用 pako 进行 gzip 压缩
+                const compressed = pako.gzip(csvBytes);
+                
+                // 3. 转换为 base64
+                let binaryString = '';
+                compressed.forEach(byte => {
+                    binaryString += String.fromCharCode(byte);
+                });
+                const base64 = btoa(binaryString);
+                
+                // 4. URL 安全编码（替换 +/= 字符）
+                const urlSafeBase64 = base64
+                    .replace(/\+/g, '-')
+                    .replace(/\//g, '_')
+                    .replace(/=/g, '');
+                
+                // 生成分享链接
+                const shareUrl = `${window.location.origin}${window.location.pathname}?share=${urlSafeBase64}`;
+                
+                // 复制到剪贴板
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(shareUrl).then(() => {
+                        this.showToast('分享链接已复制到剪贴板', 'success');
+                        console.log('✓ 分享链接已生成:', result.name);
+                        console.log('  压缩前大小:', csvContent.length, 'bytes');
+                        console.log('  压缩后大小:', compressed.length, 'bytes');
+                        console.log('  压缩率:', ((1 - compressed.length / csvContent.length) * 100).toFixed(1) + '%');
+                    }).catch(err => {
+                        console.error('复制到剪贴板失败:', err);
+                        this.showShareUrlDialog(shareUrl);
+                    });
+                } else {
+                    // 降级方案：显示链接让用户手动复制
+                    this.showShareUrlDialog(shareUrl);
+                }
+            } catch (error) {
+                console.error('生成分享链接失败:', error);
+                this.showToast('生成分享链接失败', 'error');
+            }
+        },
+        
+        // 显示分享链接对话框（降级方案）
+        showShareUrlDialog(url) {
+            const message = `分享链接已生成，请复制：\n\n${url}`;
+            prompt('分享链接（按 Ctrl+C 或 Cmd+C 复制）:', url);
+            this.showToast('请手动复制分享链接', 'info');
+        },
+        
+        // 从URL参数解析并导入分享的结果
+        loadSharedResult() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const shareParam = urlParams.get('share');
+            
+            if (!shareParam) {
+                return; // 没有分享参数
+            }
+            
+            try {
+                // 1. URL 安全解码（恢复 +/= 字符）
+                const base64 = shareParam
+                    .replace(/-/g, '+')
+                    .replace(/_/g, '/');
+                
+                // 补充 padding
+                const padding = '='.repeat((4 - base64.length % 4) % 4);
+                const base64WithPadding = base64 + padding;
+                
+                // 2. 解码 base64 为二进制字符串
+                const binaryString = atob(base64WithPadding);
+                
+                // 3. 转换为 Uint8Array
+                const compressedBytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    compressedBytes[i] = binaryString.charCodeAt(i);
+                }
+                
+                // 4. 使用 pako 解压缩
+                const decompressed = pako.ungzip(compressedBytes);
+                
+                // 5. 转换为字符串
+                const decoder = new TextDecoder();
+                const csvContent = decoder.decode(decompressed);
+                
+                console.log('✓ 分享链接解析成功');
+                console.log('  压缩后大小:', compressedBytes.length, 'bytes');
+                console.log('  解压后大小:', csvContent.length, 'bytes');
+                
+                // 使用PapaParse解析CSV
+                Papa.parse(csvContent, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        if (results.errors.length > 0) {
+                            console.error('CSV解析错误:', results.errors);
+                            this.showToast('分享链接解析失败', 'error');
+                            return;
+                        }
+                        
+                        this.parseSharedCSVData(results.data);
+                    },
+                    error: (error) => {
+                        console.error('CSV解析失败:', error);
+                        this.showToast('分享链接解析失败', 'error');
+                    }
+                });
+            } catch (error) {
+                console.error('解析分享链接失败:', error);
+                this.showToast('分享链接无效或已损坏', 'error');
+            }
+        },
+        
+        // 解析分享的CSV数据
+        parseSharedCSVData(data) {
+            try {
+                const dimensions = {};
+                const comments = {};
+                let averageScore = 0;
+                
+                // 获取所有维度映射
+                const allDimensions = [
+                    ...DimensionsData.coreDimensions,
+                    ...DimensionsData.optionalDimensions
+                ];
+                const dimensionMap = {};
+                allDimensions.forEach(dim => {
+                    dimensionMap[dim.name] = dim.id;
+                });
+                
+                // 解析每一行
+                data.forEach(row => {
+                    const dimensionName = row['维度'];
+                    const score = row['分数'];
+                    const comment = row['说明'] || '';
+                    
+                    if (dimensionName === '平均分') {
+                        averageScore = parseFloat(score) || 0;
+                    } else if (dimensionMap[dimensionName]) {
+                        const dimId = dimensionMap[dimensionName];
+                        dimensions[dimId] = parseInt(score) || 0;
+                        if (comment) {
+                            comments[dimId] = comment;
+                        }
+                    }
+                });
+                
+                // 如果没有平均分，计算一个
+                if (averageScore === 0) {
+                    const scores = Object.values(dimensions).filter(s => s > 0);
+                    if (scores.length > 0) {
+                        averageScore = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
+                    }
+                }
+                
+                // 创建结果对象
+                const result = {
+                    name: `分享结果-${new Date().toLocaleString('zh-CN', { 
+                        month: '2-digit', 
+                        day: '2-digit', 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    })}`,
+                    dimensions,
+                    comments,
+                    averageScore: parseFloat(averageScore),
+                    visible: true,
+                    isCurrent: false,
+                    isShared: true
+                };
+                
+                // 添加到结果列表
+                this.addResult(result);
+                
+                console.log('✓ 已导入分享的结果:', result.name);
+                this.showToast('已成功导入分享的评分结果', 'success', 4000);
+                
+                // 清除URL参数（保持URL干净）
+                const url = new URL(window.location);
+                url.searchParams.delete('share');
+                window.history.replaceState({}, document.title, url.toString());
+                
+            } catch (error) {
+                console.error('解析分享数据失败:', error);
+                this.showToast('导入分享结果失败', 'error');
+            }
         },
         
         // 清空所有结果
@@ -263,7 +471,7 @@ const app = createApp({
     
     mounted() {
         console.log('========================================');
-        console.log('🎯 设计评估评分工具 (Vue.js版)');
+        console.log('🎯 功能评估评分工具 (Vue.js版)');
         console.log('========================================');
         console.log('✓ Vue应用已挂载');
         console.log('✓ 维度数据已加载');
@@ -277,6 +485,9 @@ const app = createApp({
         
         // 初始化时检查URL hash
         this.handleHashChange();
+        
+        // 检查并加载分享的结果
+        this.loadSharedResult();
     },
     
     beforeUnmount() {

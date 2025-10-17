@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>设计评估评分工具 (Vue版)</title>
+    <title>功能评估评分工具 (Vue版)</title>
     
     <!-- Less.js CDN -->
     <link rel="stylesheet/less" type="text/css" href="styles/main.less" />
@@ -13,8 +13,8 @@
     <div id="app">
         <header class="header">
             <div class="header-content">
-                <h1>🎯 设计评估评分工具</h1>
-                <p>基于通用设计评估维度模型的在线评分系统 (Vue.js)</p>
+                <h1>🎯 功能评估评分工具</h1>
+                <p>基于通用功能评估维度模型的在线评分系统 (Vue.js)</p>
             </div>
         </header>
 
@@ -59,6 +59,12 @@
                                 </span>
                             </label>
                             <div class="result-actions">
+                                <button 
+                                    @click="shareResult(result.id)" 
+                                    class="btn-icon" 
+                                    title="分享链接">
+                                    🔗
+                                </button>
                                 <button 
                                     @click="exportResult(result.id)" 
                                     class="btn-icon" 
@@ -114,6 +120,9 @@
     
     <!-- PapaParse for CSV parsing -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js"></script>
+    
+    <!-- Pako for gzip compression -->
+    <script src="https://cdn.jsdelivr.net/npm/pako@2/dist/pako.min.js"></script>
     
     <!-- 数据定义 -->
     <script src="data/dimensions.js"></script>
