@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设计评估评分工具 (Vue版)</title>
+    
+    <!-- Less.js CDN -->
+    <link rel="stylesheet/less" type="text/css" href="styles/main.less" />
+    <script src="https://cdn.jsdelivr.net/npm/less@4"></script>
+</head>
+<body>
+    <div id="app">
+        <header class="header">
+            <div class="header-content">
+                <h1>🎯 设计评估评分工具</h1>
+                <p>基于通用设计评估维度模型的在线评分系统 (Vue.js)</p>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- 初始操作区域 -->
+            <section class="card action-section">
+                <h2 class="card-title">📝 开始评估</h2>
+                <div class="action-buttons">
+                    <button @click="openScoreModal" class="btn btn-primary btn-large">
+                        <span class="btn-icon">📊</span>
+                        <span class="btn-text">
+                            <strong>进行评分</strong>
+                            <small>创建新的评估评分</small>
+                        </span>
+                    </button>
+                    <button @click="openImportModal" class="btn btn-secondary btn-large">
+                        <span class="btn-icon">📂</span>
+                        <span class="btn-text">
+                            <strong>导入文件</strong>
+                            <small>导入已有的评分结果</small>
+                        </span>
+                    </button>
+                </div>
+            </section>
+            
+            <!-- 结果显示区域 -->
+            <result-display></result-display>
+            
+            <!-- 评分模态框 -->
+            <form-submit></form-submit>
+            
+            <!-- 导入模态框 -->
+            <file-import></file-import>
+        </main>
+
+        <footer class="footer">
+            <p>💡 提示：评分表可用于交互设计评审、功能上线前体验自测、用户研究等场景</p>
+        </footer>
+    </div>
+
+    <!-- Vue.js 3 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+    
+    <!-- Chart.js for radar chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    
+    <!-- PapaParse for CSV parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js"></script>
+    
+    <!-- 数据定义 -->
+    <script src="data/dimensions.js"></script>
+    
+    <!-- 组件定义 -->
+    <script src="components/FormSubmit.js"></script>
+    <script src="components/FileImport.js"></script>
+    <script src="components/ResultDisplay.js"></script>
+    
+    <!-- 主应用 -->
+    <script src="app.js"></script>
+</body>
+</html>

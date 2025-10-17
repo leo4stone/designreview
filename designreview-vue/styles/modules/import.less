@@ -1,0 +1,79 @@
+// 文件导入样式模块
+
+.file-import-section, .modal-body-scroll {
+    .import-info {
+        background: @bg-lighter;
+        padding: 15px 20px;
+        border-radius: @radius-sm;
+        margin-bottom: 25px;
+        border-left: 4px solid @secondary-color;
+        
+        p {
+            color: @text-light;
+            font-size: 0.95em;
+        }
+    }
+    
+    .import-area {
+        text-align: center;
+        padding: 30px;
+        background: @bg-light;
+        border-radius: @radius;
+        border: 2px dashed @border-color;
+    }
+    
+    .selected-files {
+        margin-top: 25px;
+        text-align: left;
+        
+        p {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: @text-dark;
+        }
+        
+        ul {
+            list-style: none;
+            margin-bottom: 20px;
+            
+            li {
+                padding: 10px 15px;
+                background: white;
+                border-radius: @radius-sm;
+                margin-bottom: 8px;
+                border-left: 4px solid @success-color;
+                font-size: 0.95em;
+            }
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+    }
+    
+    .import-progress {
+        margin-top: 25px;
+        text-align: center;
+        padding: 30px;
+        background: @bg-lighter;
+        border-radius: @radius;
+        
+        .progress-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid @border-color;
+            border-top-color: @primary-color;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        p {
+            color: @text-light;
+            font-weight: 500;
+        }
+    }
+}
+

@@ -1,0 +1,195 @@
+// 模态框样式模块
+
+// ===== 全屏模态框 =====
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+    overflow: hidden;
+}
+
+.modal-container {
+    background: white;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    animation: slideInFromBottom 0.3s ease;
+    
+    &.modal-large {
+        // 保持相同的全屏样式
+    }
+}
+
+.modal-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 30px;
+    border-bottom: 2px solid @border-color;
+    background: linear-gradient(135deg, @primary-light 0%, @primary-color 100%);
+    flex-shrink: 0;
+    
+    h2 {
+        font-size: 1.5em;
+        color: white;
+        font-weight: 700;
+        margin: 0;
+    }
+}
+
+.modal-close-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 2em;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    
+    &:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
+    }
+}
+
+.modal-body-scroll {
+    padding: 30px;
+    overflow-y: auto;
+    flex: 1;
+    
+    @media (max-width: 768px) {
+        padding: 20px;
+    }
+}
+
+// ===== 帮助模态框（小窗口）=====
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
+    
+    &-content {
+        background: white;
+        border-radius: @radius-lg;
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: @shadow-lg;
+        animation: slideUp 0.3s ease;
+    }
+    
+    &-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 25px 30px;
+        border-bottom: 2px solid @border-color;
+        background: linear-gradient(135deg, @primary-light 0%, @primary-color 100%);
+        border-radius: @radius-lg @radius-lg 0 0;
+        
+        h3 {
+            font-size: 1.5em;
+            color: white;
+            font-weight: 700;
+        }
+    }
+    
+    &-close {
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        font-size: 1.8em;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        line-height: 1;
+        
+        &:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+    }
+    
+    &-body {
+        padding: 30px;
+        
+        .modal-section {
+            margin-bottom: 25px;
+            
+            &:last-child {
+                margin-bottom: 0;
+            }
+            
+            h4 {
+                font-size: 1.2em;
+                color: @text-dark;
+                margin-bottom: 12px;
+                font-weight: 600;
+            }
+            
+            p {
+                color: @text-dark;
+                line-height: 1.7;
+                font-size: 0.98em;
+            }
+            
+            ul {
+                list-style: none;
+                padding-left: 0;
+                
+                li {
+                    padding: 10px 0 10px 30px;
+                    color: @text-dark;
+                    position: relative;
+                    line-height: 1.6;
+                    
+                    &::before {
+                        content: '•';
+                        position: absolute;
+                        left: 10px;
+                        color: @primary-color;
+                        font-size: 1.5em;
+                        line-height: 1;
+                    }
+                }
+            }
+            
+            .example-text {
+                padding: 15px 20px;
+                background: @bg-lighter;
+                border-left: 4px solid @warning-color;
+                border-radius: @radius-sm;
+                font-style: italic;
+                color: @text-dark;
+            }
+        }
+    }
+}
+

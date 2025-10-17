@@ -1,0 +1,50 @@
+// 头部和页脚样式模块
+
+// ===== 头部样式 =====
+.header {
+    background: linear-gradient(135deg, @primary-color 0%, @primary-dark 100%);
+    color: white;
+    padding: 60px 20px;
+    text-align: center;
+    margin-bottom: 40px;
+    border-radius: 0 0 @radius-lg @radius-lg;
+    box-shadow: @shadow-lg;
+
+    &-content {
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            
+            @media (max-width: 768px) {
+                font-size: 2em;
+            }
+        }
+
+        p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            
+            @media (max-width: 768px) {
+                font-size: 1em;
+            }
+        }
+    }
+}
+
+// ===== 页脚样式 =====
+.footer {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 30px 20px;
+    text-align: center;
+    color: @text-light;
+    margin-top: 40px;
+    border-radius: @radius-lg @radius-lg 0 0;
+    box-shadow: @shadow;
+
+    p {
+        font-size: 0.95em;
+        line-height: 1.6;
+    }
+}
+
